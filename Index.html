@@ -1,0 +1,1830 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MANRISK - Loka POM Kobar</title>
+  <link href="https://unpkg.com/tailwindcss@^2/dist/tailwind.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <style>
+    /* Custom Scrollbar & Style tambahan */
+    .custom-scrollbar::-webkit-scrollbar { width: 6px; }
+    .custom-scrollbar::-webkit-scrollbar-track { background: #1e1b4b; }
+    .custom-scrollbar::-webkit-scrollbar-thumb { background: #4338ca; border-radius: 3px; }
+  </style>
+</head>
+<body class="bg-gray-50 font-sans antialiased h-screen overflow-hidden">
+
+  <!-- LAYAR LOGIN -->
+  <div id="login-screen" class="w-full h-screen flex items-center justify-center bg-gradient-to-br from-indigo-950 to-indigo-700">
+    <div class="bg-white rounded-2xl shadow-2xl p-8 w-full max-w-sm mx-4">
+      <div class="text-center mb-6">
+        <i class="fa-solid fa-shield-halved text-4xl text-indigo-700 mb-2"></i>
+        <h1 class="text-xl font-black text-gray-800">MANRISK</h1>
+        <p class="text-xs text-gray-500">Loka POM Kab. Kotawaringin Barat</p>
+      </div>
+      <form id="form-login" onsubmit="submitLogin(event)" class="space-y-4">
+        <div>
+          <label class="block text-xs font-bold text-gray-700 uppercase mb-1">Username</label>
+          <input type="text" id="login-username" class="w-full p-2.5 border rounded-lg focus:ring-2 focus:ring-indigo-500" required autocomplete="username">
+        </div>
+        <div>
+          <label class="block text-xs font-bold text-gray-700 uppercase mb-1">Password</label>
+          <input type="password" id="login-password" class="w-full p-2.5 border rounded-lg focus:ring-2 focus:ring-indigo-500" required autocomplete="current-password">
+        </div>
+        <p id="login-error" class="text-xs text-red-600 font-semibold hidden"></p>
+        <button type="submit" id="btn-login" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2.5 rounded-lg shadow-sm transition">
+          <i class="fa-solid fa-right-to-bracket mr-1.5"></i> Masuk
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- SHELL APLIKASI: tersembunyi sampai login berhasil -->
+  <div id="app-shell" class="hidden h-screen w-full flex overflow-hidden">
+
+ <div class="w-64 bg-indigo-900 text-white flex flex-col shadow-xl z-10 flex-shrink-0">
+    <div class="p-5 text-xl font-black flex items-center bg-indigo-950 border-b border-indigo-800">
+      <i class="fa-solid fa-shield-halved mr-3 text-red-500"></i> MANRISK
+    </div>
+
+    <nav class="flex-1 p-4 space-y-1 overflow-y-auto custom-scrollbar text-sm font-medium">
+      <a href="#" onclick="switchMenu('dashboard')" class="flex items-center p-3 rounded-lg hover:bg-indigo-800 transition"><i class="fa-solid fa-gauge mr-3 text-emerald-400"></i> Dashboard</a>
+      
+      <a href="#" onclick="switchMenu('penetapan-konteks')" class="flex items-center p-3 rounded-lg hover:bg-indigo-800 transition"><i class="fa-solid fa-folder-open mr-3 text-amber-400"></i> Penetapan Konteks</a>
+      
+    <div class="space-y-1">
+        <button onclick="toggleSubMenu('submenu-identifikasi')" class="w-full flex items-center justify-between p-3 rounded-lg hover:bg-indigo-800 transition focus:outline-none">
+          <div class="flex items-center">
+            <i class="fa-solid fa-magnifying-glass-chart mr-3 text-sky-400"></i>
+            <span>Identifikasi Risiko</span>
+          </div>
+          <i id="arrow-identifikasi" class="fa-solid fa-chevron-down text-xs transition-transform duration-200"></i>
+        </button>
+        
+        <div id="submenu-identifikasi" class="pl-9 space-y-1 hidden">
+          <a href="#" onclick="switchMenu('entry-resiko')" class="flex items-center p-2 rounded-md hover:bg-indigo-800 text-xs text-indigo-200 hover:text-white transition"><i class="fa-solid fa-pen-to-square mr-2"></i> Entry Risiko</a>
+          <a href="#" onclick="switchMenu('daftar-resiko')" class="flex items-center p-2 rounded-md hover:bg-indigo-800 text-xs text-indigo-200 hover:text-white transition"><i class="fa-solid fa-table-list mr-2"></i> Daftar Risiko</a>
+        </div>
+      </div>
+      
+      <a href="#" onclick="switchMenu('analisis-resiko')" class="flex items-center p-3 rounded-lg hover:bg-indigo-800 transition"><i class="fa-solid fa-calculator mr-3 text-orange-400"></i> Analisis Risiko</a>
+      <a href="#" onclick="switchMenu('evaluasi-resiko')" class="flex items-center p-3 rounded-lg hover:bg-indigo-800 transition"><i class="fa-solid fa-scale-balanced mr-3 text-pink-400"></i> Evaluasi Risiko</a>
+      <a href="#" onclick="switchMenu('penanganan-resiko')" class="flex items-center p-3 rounded-lg hover:bg-indigo-800 transition"><i class="fa-solid fa-kit-medical mr-3 text-red-400"></i> Penanganan Risiko</a>
+      <a href="#" onclick="switchMenu('pemantauan-reviu')" class="flex items-center p-3 rounded-lg hover:bg-indigo-800 transition"><i class="fa-solid fa-eye mr-3 text-teal-400"></i> Pemantauan & Reviu</a>
+
+      <div id="sidebar-admin-panel" class="hidden pt-4 border-t border-indigo-800 mt-4 space-y-1">
+        <span class="px-3 text-xs text-indigo-300 uppercase font-bold tracking-wider block mb-1">Admin Panel</span>
+        <a href="#" onclick="switchMenu('admin-kriteria')" class="flex items-center p-2.5 rounded-lg hover:bg-indigo-800 transition text-xs"><i class="fa-solid fa-sliders mr-2.5"></i> Kriteria Risiko</a>
+        <a href="#" onclick="switchMenu('admin-user')" class="flex items-center p-2.5 rounded-lg hover:bg-indigo-800 transition text-xs"><i class="fa-solid fa-users-gear mr-2.5"></i> Manajemen User</a>
+      </div>
+   
+    </nav>
+    <div class="p-3 bg-indigo-950 text-xs text-center text-indigo-400 border-t border-indigo-900">
+       Loka POM Kab. Kotawaringin Barat
+    </div>
+  </div>
+ 
+
+  <div class="flex-1 flex flex-col overflow-hidden">
+    <header class="bg-white shadow-sm border-b p-4 flex justify-between items-center px-8 flex-shrink-0">
+      <h2 id="current-menu-title" class="text-xl font-bold text-gray-800 tracking-tight">Dashboard</h2>
+      <div class="flex items-center gap-3">
+        <div class="text-sm font-semibold bg-indigo-50 text-indigo-700 px-3 py-1.5 rounded-full border border-indigo-100">
+          <i class="fa-solid fa-user-shield mr-1.5"></i> <span id="header-user-badge">...</span>
+        </div>
+        <button onclick="doLogout()" class="text-gray-400 hover:text-red-600 transition text-sm" title="Keluar">
+          <i class="fa-solid fa-right-from-bracket"></i>
+        </button>
+      </div>
+    </header>
+
+    <main class="flex-1 overflow-x-hidden overflow-y-auto p-8 bg-gray-50">
+      
+      <div id="header-informasi-box" class="mb-6 bg-blue-50 border-l-4 border-blue-600 p-4 rounded-r-lg shadow-sm">
+        <p id="header-informasi-text" class="text-sm font-semibold text-blue-900 italic"></p>
+      </div>
+
+      <div id="view-dashboard" class="menu-content space-y-6 hidden">
+        <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+          <h3 class="text-lg font-bold text-gray-800 mb-2">Selamat Datang di MANRISK</h3>
+          <p class="text-sm text-gray-600">Pilih menu di sebelah kiri untuk mengelola sistem manajemen risiko internal.</p>
+        </div>
+      </div>
+
+      <div id="view-penetapan-konteks" class="menu-content space-y-6 hidden">
+        
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          
+          <div class="lg:col-span-2 bg-white p-5 rounded-xl shadow-sm border border-gray-100">
+            <div class="flex justify-between items-center mb-4">
+              <h3 class="text-sm font-bold text-gray-800 uppercase tracking-wider flex items-center">
+                <span class="w-2 h-5 bg-indigo-600 rounded mr-2"></span> Database Tab Konteks
+              </h3>
+              <button onclick="loadKonteksTableData()" class="bg-gray-100 hover:bg-gray-200 text-gray-700 text-xxs font-bold px-2.5 py-1.5 rounded-md border border-gray-300 transition">
+                <i class="fa-solid fa-rotate mr-1"></i> Refresh
+              </button>
+            </div>
+
+            <div class="overflow-x-auto rounded-lg border border-gray-200 custom-scrollbar text-xs">
+              <table class="min-w-full text-left border-collapse">
+                <thead class="bg-indigo-900 text-white font-bold text-center">
+                  <tr>
+                    <th class="p-2 border w-12">No</th>
+                    <th class="p-2 border">Konteks / Lingkungan</th>
+                    <th class="p-2 border">Keterangan</th>
+                    <th id="th-aksi-konteks" class="p-2 border w-24 hidden">Aksi</th>
+                  </tr>
+                </thead>
+                <tbody id="tbody-konteks-data" class="divide-y divide-gray-100 text-gray-700 bg-white">
+                  <tr>
+                    <td colspan="4" class="p-4 text-center text-gray-400 italic">Memuat basis data konteks...</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <div id="box-wrapper-form-konteks" class="lg:col-span-1 hidden">
+            <div class="bg-white p-5 rounded-xl shadow-md border border-gray-200 sticky top-4">
+              <div class="border-b pb-2 mb-4 flex justify-between items-center">
+                <h3 id="title-form-konteks" class="font-bold text-gray-800 text-xs uppercase tracking-wider flex items-center">
+                  <i class="fa-solid fa-folder-plus mr-2 text-indigo-600"></i> Tambah Konteks Baru
+                </h3>
+                <button id="btn-batal-konteks" onclick="resetFormKonteksState()" class="text-gray-400 hover:text-gray-600 text-xxs font-bold hidden">✕ Batal</button>
+              </div>
+
+              <form id="form-crud-konteks" onsubmit="submitFormKonteks(event)" class="space-y-4 text-xs">
+                <input type="hidden" id="konteks-row-num" value="">
+
+                <div>
+                  <label class="block font-bold text-gray-700 uppercase mb-1">Nama Konteks / Kriteria Lingkungan</label>
+                  <textarea id="input-konteks-nama" rows="3" class="w-full p-2 border rounded-lg bg-white focus:ring-2 focus:ring-indigo-400 text-xs" placeholder="Contoh: Lingkungan Internal - Restrukturisasi Organisasi Loka POM" required></textarea>
+                </div>
+
+                <div>
+                  <label class="block font-bold text-gray-700 uppercase mb-1">Keterangan Tambahan</label>
+                  <textarea id="input-konteks-ket" rows="3" class="w-full p-2 border rounded-lg bg-white focus:ring-2 focus:ring-indigo-400 text-xs" placeholder="Penjelasan pendukung kriteria konteks..."></textarea>
+                </div>
+
+                <div class="pt-2">
+                  <button type="submit" id="btn-submit-konteks" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 rounded-lg shadow-sm transition flex items-center justify-center">
+                    <i class="fa-solid fa-floppy-disk mr-1.5"></i> Simpan Data Konteks
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+
+      <div id="view-entry-resiko" class="menu-content hidden">
+        <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+          
+          <form id="form-identifikasi-risiko" onsubmit="submitFormIdentifikasi(event)" class="space-y-6 text-sm">
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label class="block text-xs font-bold text-gray-700 uppercase mb-1">i. Sasaran (Konteks)</label>
+                <select id="entry-sasaran" class="w-full p-2 border rounded-lg bg-white focus:ring-2 focus:ring-indigo-500" required>
+                  <option value="">-- Pilih Sasaran Kinerja --</option>
+                </select>
+              </div>
+              <div>
+                <label class="block text-xs font-bold text-gray-700 uppercase mb-1">Kegiatan / Proses Bisnis</label>
+                <input type="text" id="entry-kegiatan" placeholder="Masukkan nama kegiatan atau proses bisnis" class="w-full p-2 border rounded-lg focus:ring-2 focus:ring-indigo-500" required>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div>
+                <label class="block text-xs font-bold text-gray-700 uppercase mb-1">Unit Risiko</label>
+                <select id="entry-unit" onchange="generateLiveKodeRisiko()" class="w-full p-2 border rounded-lg bg-white focus:ring-2 focus:ring-indigo-500" required>
+                  <option value="01">Tata Usaha (01)</option>
+                  <option value="02">Pemeriksaan (02)</option>
+                  <option value="03">Pemeriksaan (03)</option>
+                  <option value="04">Penindakan (04)</option>
+                  <option value="05">Pengujian (05)</option>
+                  <option value="06">Infokom (06)</option>
+                  <option value="07">Sertifikasi (07)</option>
+                </select>
+              </div>
+              <div>
+                <label class="block text-xs font-bold text-gray-700 uppercase mb-1">ii. Kategori Risiko</label>
+                <select id="entry-kategori" onchange="generateLiveKodeRisiko()" class="w-full p-2 border rounded-lg bg-white focus:ring-2 focus:ring-indigo-500" required>
+                  <option value="Risiko Strategis">Risiko Strategis</option>
+                  <option value="Risiko Reputasi">Risiko Reputasi</option>
+                  <option value="Risiko Hukum">Risiko Hukum</option>
+                  <option value="Risiko Sumber daya manusia">Risiko Sumber daya manusia</option>
+                  <option value="Risiko Operasional">Risiko Operasional</option>
+                  <option value="Risiko IT">Risiko IT</option>
+                  <option value="Risiko kesehatan dan Keselamatan Kerja">Risiko kesehatan dan Keselamatan Kerja</option>
+                  <option value="Risiko Fraud">Risiko Fraud</option>
+                  <option value="Risiko Keuangan">Risiko Keuangan</option>
+                  <option value="Risiko Aset">Risiko Aset</option>
+                </select>
+              </div>
+              <div>
+                <label class="block text-xs font-bold text-gray-700 uppercase mb-1">iii. Kode Risiko (Otomatis)</label>
+                <input type="text" id="entry-kode" class="w-full p-2 border rounded-lg bg-gray-100 font-mono font-bold text-indigo-700" readonly>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 bg-gray-50 p-4 rounded-xl border border-gray-200">
+              <div class="md:col-span-2">
+                <span class="text-xs font-bold text-indigo-900 block mb-2"><i class="fa-solid fa-circle-info mr-1"></i> iv. Issue ISO 9001:2015</span>
+              </div>
+              <div>
+                <label class="block text-xs font-semibold text-gray-600 mb-1">Risk Event / Uraian Peristiwa Risiko</label>
+                <textarea id="entry-event" rows="2" placeholder="Uraikan peristiwa risiko..." class="w-full p-2 border rounded-lg bg-white focus:ring-2 focus:ring-indigo-500" required></textarea>
+              </div>
+              <div>
+                <label class="block text-xs font-semibold text-gray-600 mb-1">Penyebab Risiko</label>
+                <textarea id="entry-penyebab" rows="2" placeholder="Sebutkan akar penyebab terjadinya risiko..." class="w-full p-2 border rounded-lg bg-white focus:ring-2 focus:ring-indigo-500" required></textarea>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label class="block text-xs font-bold text-gray-700 uppercase mb-1">v. Sumber Risiko</label>
+                <select id="entry-sumber" class="w-full p-2 border rounded-lg bg-white focus:ring-2 focus:ring-indigo-500" required>
+                  <option value="Internal">Internal</option>
+                  <option value="External">External</option>
+                </select>
+              </div>
+              <div>
+                <label class="block text-xs font-bold text-gray-700 uppercase mb-1">vi. Akibat / Potensi Kerugian (Risk ISO 9001:2015)</label>
+                <input type="text" id="entry-akibat" placeholder="Dampak kerugian finansial / non-finansial" class="w-full p-2 border rounded-lg focus:ring-2 focus:ring-indigo-500" required>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label class="block text-xs font-bold text-gray-500 uppercase mb-1">vii. Pemilik Risiko</label>
+                <input type="text" id="entry-pemilik" value="Kepala Loka POM di Kab. Kotawaringin Barat" class="w-full p-2 border rounded-lg bg-gray-100 text-gray-500" readonly>
+              </div>
+              <div>
+                <label class="block text-xs font-bold text-gray-500 uppercase mb-1">viii. Nama Unit Kerja Terkait</label>
+                <input type="text" id="entry-unitkerja" value="Loka POM di Kab. Kotawaringin Barat" class="w-full p-2 border rounded-lg bg-gray-100 text-gray-500" readonly>
+              </div>
+            </div>
+
+            <div class="flex justify-end pt-4 border-t">
+              <button type="submit" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs px-6 py-3 rounded-lg shadow transition">
+                <i class="fa-solid fa-paper-plane mr-2"></i> Submit & Ambil Kode Risiko
+              </button>
+            </div>
+
+          </form>
+        </div>
+      </div>
+
+    <div id="view-daftar-resiko" class="menu-content hidden">
+        <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+          
+          <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center pb-4 mb-2 border-b border-gray-100">
+            <h3 class="text-base font-bold text-gray-800 flex items-center mb-3 sm:mb-0">
+              <span class="w-2 h-5 bg-purple-600 rounded mr-2"></span> Basis Data Identifikasi & Analisis Risiko
+            </h3>
+            
+            <div class="flex items-center space-x-2">
+              <button onclick="downloadExcelDaftarRisiko()" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold px-3 py-2 rounded-lg shadow-sm transition flex items-center" title="Export ke Excel">
+             <span class="text-base mr-2">📊</span> Export to Excel
+            </button>
+              
+              <button onclick="loadDaftarRisiko()" class="bg-gray-100 hover:bg-gray-200 text-gray-700 text-xs font-bold px-3 py-2 rounded-lg border border-gray-300 transition flex items-center" title="Perbarui Data">
+                <i class="fa-solid fa-rotate mr-2 text-gray-500"></i> Refresh Data
+              </button>
+            </div>
+          </div>
+
+          <div class="overflow-x-auto rounded-lg border border-gray-200 custom-scrollbar text-xxs">
+            <table id="tabel-daftar-risiko-kobar" class="min-w-full text-left border-collapse whitespace-nowrap">
+              
+              <thead class="bg-indigo-900 text-white font-bold text-center border-b border-indigo-950">
+                <tr>
+                  <th rowspan="2" class="p-2 border">No.</th>
+                  <th rowspan="2" class="p-2 border">Sasaran</th>
+                  <th rowspan="2" class="p-2 border">Kegiatan/Proses Bisnis</th>
+                  <th rowspan="2" class="p-2 border">Kode Risiko</th>
+                  <th rowspan="2" class="p-2 border">Kategori Risiko</th>
+                  <th colspan="2" class="p-2 border bg-indigo-950">Issue ISO 9001:2015</th>
+                  <th rowspan="2" class="p-2 border">Sumber Risiko</th>
+                  <th rowspan="2" class="p-2 border">Akibat / Potensi Kerugian</th>
+                  <th rowspan="2" class="p-2 border">Pemilik Risiko</th>
+                  <th rowspan="2" class="p-2 border">Nama Unit Kerja Terkait</th>
+                  <th colspan="3" class="p-2 border bg-orange-800">Risiko Inheren</th>
+                  <th colspan="4" class="p-2 border bg-teal-800">Aktivitas Pengendalian Saat Ini</th>
+                  <th colspan="3" class="p-2 border bg-red-800">Risiko Residual</th>
+                  <th rowspan="2" class="p-2 border bg-indigo-950">Aksi</th>
+                </tr>
+                <tr class="bg-indigo-800 text-white text-xxs font-semibold">
+                  <th class="p-1.5 border font-medium">Risk Event / Peristiwa</th>
+                  <th class="p-1.5 border font-medium">Penyebab Risiko</th>
+                  <th class="p-1.5 border font-medium bg-orange-700">Kemungkinan</th>
+                  <th class="p-1.5 border font-medium bg-orange-700">Dampak</th>
+                  <th class="p-1.5 border font-medium bg-orange-700">Level</th>
+                  <th class="p-1.5 border font-medium bg-teal-700">Aktivitas</th>
+                  <th class="p-1.5 border font-medium bg-teal-700">Atribut</th>
+                  <th class="p-1.5 border font-medium bg-teal-700">Penilaian Kelemahan</th>
+                  <th class="p-1.5 border font-medium bg-teal-700">Simpulan Efektivitas</th>
+                  <th class="p-1.5 border font-medium bg-red-700">Kemungkinan</th>
+                  <th class="p-1.5 border font-medium bg-red-700">Dampak</th>
+                  <th class="p-1.5 border font-medium bg-red-700">Level Residu</th>
+                </tr>
+              </thead>
+
+              <tbody id="tbody-daftar-resiko" class="divide-y divide-gray-200 text-gray-700 font-medium bg-white">
+                <tr>
+                  <td colspan="23" class="p-4 text-center text-gray-400 font-normal italic">Memuat basis data risiko...</td>
+                </tr>
+              </tbody>
+
+            </table>
+          </div>
+
+        </div>
+      </div>
+
+
+
+
+<div id="view-analisis-resiko" class="menu-content space-y-6 hidden">
+        
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          
+          <div class="lg:col-span-2 space-y-4">
+            
+            <div class="bg-white p-5 rounded-xl shadow-sm border border-red-100">
+              <h3 class="font-bold text-red-700 text-xs uppercase tracking-wider mb-3 flex items-center">
+                <i class="fa-solid fa-triangle-exclamation mr-1.5 text-base"></i> Belum Berikan Penilaian Inheren
+              </h3>
+              <div id="list-analisis-belum" class="divide-y divide-gray-100 max-h-60 overflow-y-auto custom-scrollbar pr-2">
+                <p class="text-xs text-gray-400 py-2">Memuat data...</p>
+              </div>
+            </div>
+
+            <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-100">
+              <h3 class="font-bold text-indigo-700 text-xs uppercase tracking-wider mb-3 flex items-center">
+                <i class="fa-solid fa-user-pen mr-1.5 text-base"></i> Edit / Update Analisis Risiko Existing
+              </h3>
+              <div id="list-analisis-sudah" class="divide-y divide-gray-100 max-h-64 overflow-y-auto custom-scrollbar pr-2">
+                <p class="text-xs text-gray-400 py-2">Memuat data...</p>
+              </div>
+            </div>
+
+          </div>
+
+          <div class="lg:col-span-1">
+            <div id="box-form-analisis" class="bg-white p-6 rounded-xl shadow-md border border-gray-200 sticky top-4 hidden">
+              <div class="border-b pb-3 mb-4 flex justify-between items-center">
+                <h3 class="font-bold text-gray-800 text-sm flex items-center">
+                  <i class="fa-solid fa-calculator mr-2 text-orange-500"></i> Risiko Inheren
+                </h3>
+                <button onclick="closeAnalisisForm()" class="text-gray-400 hover:text-gray-600 text-xs font-bold">✕ Close</button>
+              </div>
+              
+              <form id="form-sub-inheren" onsubmit="submitPenilaianAnalisis(event)" class="space-y-4 text-xs">
+                <input type="hidden" id="analisis-row-num">
+                
+                <div class="p-3 bg-gray-50 rounded-lg space-y-1 text-gray-600 border border-gray-100">
+                  <p><strong>Kode:</strong> <span id="lbl-analisis-kode" class="font-mono font-bold text-indigo-700"></span></p>
+                  <p class="truncate"><strong>Kegiatan:</strong> <span id="lbl-analisis-kegiatan"></span></p>
+                  <p class="text-xxs italic leading-tight text-gray-400 mt-1"><span id="lbl-analisis-peristiwa"></span></p>
+                </div>
+
+                <div>
+                  <label class="block font-bold text-gray-700 uppercase mb-1">Kemungkinan Inheren</label>
+                  <select id="an-kemungkinan" onchange="liveCalculateMatrixScore()" class="w-full p-2 border rounded-lg bg-white font-medium focus:ring-2 focus:ring-orange-400" required>
+                    <option value="1">1 - Sangat Jarang</option>
+                    <option value="2">2 - Jarang</option>
+                    <option value="3">3 - Bisa Terjadi</option>
+                    <option value="4">4 - Sering</option>
+                    <option value="5">5 - Pasti</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label class="block font-bold text-gray-700 uppercase mb-1">Dampak Inheren</label>
+                  <select id="an-dampak" onchange="liveCalculateMatrixScore()" class="w-full p-2 border rounded-lg bg-white font-medium focus:ring-2 focus:ring-orange-400" required>
+                    <option value="1">1 - Tidak Signifikan</option>
+                    <option value="2">2 - Kecil</option>
+                    <option value="3">3 - Sedang</option>
+                    <option value="4">4 - Besar</option>
+                    <option value="5">5 - Katastrope</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label class="block font-bold text-gray-700 uppercase mb-1">Level Risiko Inheren</label>
+                  <div id="badge-an-level" class="w-full p-2.5 rounded-lg font-black text-center text-sm border bg-gray-100 text-gray-700 shadow-sm transition-all duration-300">
+                    Skor: -
+                  </div>
+                </div>
+
+                <div class="pt-2">
+                  <button type="submit" class="w-full bg-orange-600 hover:bg-orange-700 text-white font-bold py-2.5 rounded-lg shadow-sm transition flex items-center justify-center">
+                    <i class="fa-solid fa-floppy-disk mr-1.5"></i> Simpan Penilaian Analisis
+                  </button>
+                </div>
+              </form>
+            </div>
+            
+            <div id="hint-form-analisis" class="border-2 border-dashed border-gray-200 rounded-xl p-8 text-center text-gray-400 text-xs">
+               <i class="fa-solid fa-hand-pointer text-2xl mb-2 text-gray-300"></i>
+               <p>Klik tombol <strong>"Beri Nilai"</strong> atau <strong>"Edit / Update"</strong> pada daftar di sebelah kiri untuk mengisi data sub input Risiko Inheren.</p>
+            </div>
+          </div>
+
+        </div>
+
+        <div class="border-t-2 border-dashed pt-6">
+          <h3 class="font-bold text-teal-700 text-sm uppercase tracking-wider mb-4 flex items-center">
+            <i class="fa-solid fa-shield-halved mr-2"></i> Lanjutan: Pengendalian Saat Ini & Risiko Residual
+          </h3>
+          <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div class="lg:col-span-2 space-y-4">
+              <div class="bg-white p-5 rounded-xl shadow-sm border border-teal-100">
+                <h4 class="font-bold text-teal-700 text-xs uppercase tracking-wider mb-3 flex items-center">
+                  <i class="fa-solid fa-triangle-exclamation mr-1.5"></i> Belum Dinilai Pengendalian & Residual
+                </h4>
+                <div id="list-residual-belum" class="divide-y divide-gray-100 max-h-60 overflow-y-auto custom-scrollbar pr-2">
+                  <p class="text-xs text-gray-400 py-2">Memuat data...</p>
+                </div>
+              </div>
+              <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-100">
+                <h4 class="font-bold text-indigo-700 text-xs uppercase tracking-wider mb-3 flex items-center">
+                  <i class="fa-solid fa-user-pen mr-1.5"></i> Edit / Update Pengendalian & Residual
+                </h4>
+                <div id="list-residual-sudah" class="divide-y divide-gray-100 max-h-64 overflow-y-auto custom-scrollbar pr-2">
+                  <p class="text-xs text-gray-400 py-2">Memuat data...</p>
+                </div>
+              </div>
+            </div>
+            <div class="lg:col-span-1">
+              <div id="box-form-residual" class="bg-white p-6 rounded-xl shadow-md border border-gray-200 sticky top-4 hidden">
+                <div class="border-b pb-3 mb-4 flex justify-between items-center">
+                  <h4 class="font-bold text-gray-800 text-sm flex items-center"><i class="fa-solid fa-shield-halved mr-2 text-teal-500"></i> Pengendalian & Residual</h4>
+                  <button onclick="closeResidualForm()" class="text-gray-400 hover:text-gray-600 text-xs font-bold">✕ Close</button>
+                </div>
+                <form id="form-residual" onsubmit="submitPengendalianResidual(event)" class="space-y-3 text-xs">
+                  <input type="hidden" id="residual-row-num">
+                  <div class="p-3 bg-gray-50 rounded-lg text-gray-600 border border-gray-100">
+                    <p><strong>Kode:</strong> <span id="lbl-residual-kode" class="font-mono font-bold text-indigo-700"></span></p>
+                    <p class="truncate"><strong>Kegiatan:</strong> <span id="lbl-residual-kegiatan"></span></p>
+                  </div>
+                  <div>
+                    <label class="block font-bold text-gray-700 uppercase mb-1">Aktivitas Pengendalian</label>
+                    <textarea id="res-aktivitas" rows="2" class="w-full p-2 border rounded-lg" placeholder="Uraikan pengendalian yang sudah berjalan..." required></textarea>
+                  </div>
+                  <div>
+                    <label class="block font-bold text-gray-700 uppercase mb-1">Atribut Pengendalian</label>
+                    <input type="text" id="res-atribut" class="w-full p-2 border rounded-lg" placeholder="Preventif / Detektif / Korektif">
+                  </div>
+                  <div>
+                    <label class="block font-bold text-gray-700 uppercase mb-1">Penilaian Kelemahan</label>
+                    <textarea id="res-kelemahan" rows="2" class="w-full p-2 border rounded-lg" placeholder="Kelemahan pengendalian saat ini..."></textarea>
+                  </div>
+                  <div>
+                    <label class="block font-bold text-gray-700 uppercase mb-1">Simpulan Efektivitas</label>
+                    <select id="res-efektivitas" class="w-full p-2 border rounded-lg bg-white">
+                      <option value="Efektif">Efektif</option>
+                      <option value="Kurang Efektif">Kurang Efektif</option>
+                      <option value="Tidak Efektif">Tidak Efektif</option>
+                    </select>
+                  </div>
+                  <div class="grid grid-cols-2 gap-2">
+                    <div>
+                      <label class="block font-bold text-gray-700 uppercase mb-1">Kemungkinan Residual</label>
+                      <select id="res-kemungkinan" onchange="liveCalculateResidualScore()" class="w-full p-2 border rounded-lg bg-white" required>
+                        <option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label class="block font-bold text-gray-700 uppercase mb-1">Dampak Residual</label>
+                      <select id="res-dampak" onchange="liveCalculateResidualScore()" class="w-full p-2 border rounded-lg bg-white" required>
+                        <option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option>
+                      </select>
+                    </div>
+                  </div>
+                  <div>
+                    <label class="block font-bold text-gray-700 uppercase mb-1">Level Risiko Residual</label>
+                    <div id="badge-res-level" class="w-full p-2.5 rounded-lg font-black text-center text-sm border bg-gray-100 text-gray-700">Skor: -</div>
+                  </div>
+                  <button type="submit" class="w-full bg-teal-600 hover:bg-teal-700 text-white font-bold py-2.5 rounded-lg shadow-sm transition"><i class="fa-solid fa-floppy-disk mr-1.5"></i> Simpan</button>
+                </form>
+              </div>
+              <div id="hint-form-residual" class="border-2 border-dashed border-gray-200 rounded-xl p-8 text-center text-gray-400 text-xs">
+                <i class="fa-solid fa-hand-pointer text-2xl mb-2 text-gray-300"></i>
+                <p>Pilih risiko dari daftar di sebelah kiri untuk mengisi Pengendalian & Risiko Residual. Hanya risiko yang sudah dinilai Inheren yang muncul di sini.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <div id="view-evaluasi-resiko" class="menu-content hidden">
+        <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+          <div class="flex justify-between items-center mb-4">
+            <h3 class="text-sm font-bold text-gray-800 uppercase tracking-wider flex items-center"><span class="w-2 h-5 bg-pink-600 rounded mr-2"></span> Evaluasi & Prioritas Risiko</h3>
+            <button onclick="loadEvaluasiRisiko()" class="bg-gray-100 hover:bg-gray-200 text-gray-700 text-xs font-bold px-3 py-1.5 rounded-md border border-gray-300"><i class="fa-solid fa-rotate mr-1"></i> Refresh</button>
+          </div>
+          <p class="text-xs text-gray-500 mb-4">Diurutkan dari level risiko tertinggi. Level Residual dipakai jika sudah tersedia; jika belum, memakai Level Inheren.</p>
+          <div class="overflow-x-auto rounded-lg border border-gray-200 text-xs">
+            <table class="min-w-full text-left border-collapse">
+              <thead class="bg-indigo-900 text-white font-bold text-center">
+                <tr>
+                  <th class="p-2 border">Prioritas</th>
+                  <th class="p-2 border">Kode Risiko</th>
+                  <th class="p-2 border">Kegiatan</th>
+                  <th class="p-2 border">Level Dipakai</th>
+                  <th class="p-2 border">Sumber</th>
+                  <th class="p-2 border w-56">Keputusan Evaluasi</th>
+                </tr>
+              </thead>
+              <tbody id="tbody-evaluasi-risiko">
+                <tr><td colspan="6" class="p-4 text-center text-gray-400 italic">Memuat data evaluasi...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <div id="view-penanganan-resiko" class="menu-content space-y-6 hidden">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div class="lg:col-span-2 bg-white p-5 rounded-xl shadow-sm border border-gray-100">
+            <div class="flex justify-between items-center mb-4">
+              <h3 class="text-sm font-bold text-gray-800 uppercase tracking-wider flex items-center"><span class="w-2 h-5 bg-red-600 rounded mr-2"></span> Rencana Tindak Pengendalian (RTP)</h3>
+              <button onclick="loadRTPList()" class="bg-gray-100 hover:bg-gray-200 text-gray-700 text-xs font-bold px-3 py-1.5 rounded-md border border-gray-300"><i class="fa-solid fa-rotate mr-1"></i> Refresh</button>
+            </div>
+            <div class="overflow-x-auto rounded-lg border border-gray-200 text-xs">
+              <table class="min-w-full text-left border-collapse">
+                <thead class="bg-indigo-900 text-white font-bold text-center">
+                  <tr>
+                    <th class="p-2 border">Kode Risiko</th>
+                    <th class="p-2 border">Rencana Tindak</th>
+                    <th class="p-2 border">PIC</th>
+                    <th class="p-2 border">Target</th>
+                    <th class="p-2 border">Status</th>
+                    <th class="p-2 border">Aksi</th>
+                  </tr>
+                </thead>
+                <tbody id="tbody-rtp-list">
+                  <tr><td colspan="6" class="p-4 text-center text-gray-400 italic">Memuat data RTP...</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+          <div class="lg:col-span-1">
+            <div class="bg-white p-5 rounded-xl shadow-md border border-gray-200 sticky top-4">
+              <h4 class="font-bold text-gray-800 text-xs uppercase tracking-wider mb-4 flex items-center"><i class="fa-solid fa-kit-medical mr-2 text-red-600"></i> Tambah Rencana Tindak</h4>
+              <form id="form-rtp" onsubmit="submitFormRTP(event)" class="space-y-3 text-xs">
+                <div>
+                  <label class="block font-bold text-gray-700 uppercase mb-1">Kode Risiko</label>
+                  <select id="rtp-kode-risiko" class="w-full p-2 border rounded-lg bg-white" required>
+                    <option value="">-- Pilih Kode Risiko --</option>
+                  </select>
+                </div>
+                <div>
+                  <label class="block font-bold text-gray-700 uppercase mb-1">Opsi Mitigasi</label>
+                  <select id="rtp-opsi" class="w-full p-2 border rounded-lg bg-white" required>
+                    <option value="Hindari">Hindari Risiko</option>
+                    <option value="Kurangi">Kurangi Kemungkinan/Dampak</option>
+                    <option value="Alihkan">Alihkan Risiko</option>
+                    <option value="Terima">Terima Risiko</option>
+                  </select>
+                </div>
+                <div>
+                  <label class="block font-bold text-gray-700 uppercase mb-1">Rencana Tindak</label>
+                  <textarea id="rtp-rencana" rows="3" class="w-full p-2 border rounded-lg" placeholder="Uraikan rencana tindak pengendalian..." required></textarea>
+                </div>
+                <div>
+                  <label class="block font-bold text-gray-700 uppercase mb-1">Penanggung Jawab (PIC)</label>
+                  <input type="text" id="rtp-pic" class="w-full p-2 border rounded-lg" required>
+                </div>
+                <div class="grid grid-cols-2 gap-2">
+                  <div>
+                    <label class="block font-bold text-gray-700 uppercase mb-1">Target Waktu</label>
+                    <input type="date" id="rtp-target" class="w-full p-2 border rounded-lg" required>
+                  </div>
+                  <div>
+                    <label class="block font-bold text-gray-700 uppercase mb-1">Anggaran (Rp)</label>
+                    <input type="number" id="rtp-anggaran" class="w-full p-2 border rounded-lg" placeholder="0">
+                  </div>
+                </div>
+                <button type="submit" class="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-2.5 rounded-lg shadow-sm transition"><i class="fa-solid fa-floppy-disk mr-1.5"></i> Simpan RTP</button>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div id="view-pemantauan-reviu" class="menu-content space-y-6 hidden">
+        <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+          <h3 class="text-sm font-bold text-gray-800 uppercase tracking-wider mb-4 flex items-center"><span class="w-2 h-5 bg-teal-600 rounded mr-2"></span> Pemantauan & Reviu RTP</h3>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+            <div>
+              <label class="block text-xs font-bold text-gray-700 uppercase mb-1">Pilih Rencana Tindak (RTP)</label>
+              <select id="pemantauan-pilih-rtp" onchange="loadRiwayatPemantauan()" class="w-full p-2 border rounded-lg bg-white text-sm">
+                <option value="">-- Pilih RTP untuk dipantau --</option>
+              </select>
+            </div>
+          </div>
+
+          <div id="box-pemantauan-detail" class="hidden grid grid-cols-1 lg:grid-cols-3 gap-6 border-t pt-6">
+            <div class="lg:col-span-2">
+              <h4 class="font-bold text-gray-700 text-xs uppercase tracking-wider mb-3">Riwayat Pemantauan</h4>
+              <div id="list-riwayat-pemantauan" class="space-y-2 max-h-96 overflow-y-auto custom-scrollbar pr-2">
+                <p class="text-xs text-gray-400">Belum ada catatan pemantauan.</p>
+              </div>
+            </div>
+            <div class="lg:col-span-1">
+              <div class="bg-gray-50 p-5 rounded-xl border border-gray-200 sticky top-4">
+                <h4 class="font-bold text-gray-800 text-xs uppercase tracking-wider mb-3">Catatan Pemantauan Baru</h4>
+                <form id="form-pemantauan" onsubmit="submitFormPemantauan(event)" class="space-y-3 text-xs">
+                  <div>
+                    <label class="block font-bold text-gray-700 uppercase mb-1">Tanggal Reviu</label>
+                    <input type="date" id="pem-tanggal" class="w-full p-2 border rounded-lg" required>
+                  </div>
+                  <div>
+                    <label class="block font-bold text-gray-700 uppercase mb-1">Progres</label>
+                    <textarea id="pem-progres" rows="2" class="w-full p-2 border rounded-lg" placeholder="Capaian sejauh ini..." required></textarea>
+                  </div>
+                  <div>
+                    <label class="block font-bold text-gray-700 uppercase mb-1">Kendala</label>
+                    <textarea id="pem-kendala" rows="2" class="w-full p-2 border rounded-lg" placeholder="Kendala yang dihadapi (jika ada)..."></textarea>
+                  </div>
+                  <div>
+                    <label class="block font-bold text-gray-700 uppercase mb-1">Status Terkini</label>
+                    <select id="pem-status" class="w-full p-2 border rounded-lg bg-white" required>
+                      <option value="Belum Mulai">Belum Mulai</option>
+                      <option value="Proses">Proses</option>
+                      <option value="Terkendala">Terkendala</option>
+                      <option value="Selesai">Selesai</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label class="block font-bold text-gray-700 uppercase mb-1">Catatan Tambahan</label>
+                    <textarea id="pem-catatan" rows="2" class="w-full p-2 border rounded-lg"></textarea>
+                  </div>
+                  <button type="submit" class="w-full bg-teal-600 hover:bg-teal-700 text-white font-bold py-2.5 rounded-lg shadow-sm transition"><i class="fa-solid fa-floppy-disk mr-1.5"></i> Simpan Catatan</button>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div id="view-admin-kriteria" class="menu-content hidden">
+         <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100"><p class="text-sm text-gray-500">SubMenu1: Konfigurasi Kriteria Risiko [Source 53].</p></div>
+      </div>
+
+
+      <div id="view-admin-user" class="menu-content space-y-6 hidden">
+        <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+          <h3 class="font-bold text-gray-800 text-base mb-4">Tambah Pengguna Baru [Source 54]</h3>
+          <form id="form-crud-user" onsubmit="addUserSubmit(event)" class="grid grid-cols-1 md:grid-cols-4 gap-4 text-sm">
+            <input type="text" id="add-username" placeholder="Username" class="p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500" required>
+            <input type="password" id="add-password" placeholder="Password" class="p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500" required>
+            
+            <div>
+              <select id="add-roles" class="p-2 border rounded-lg w-full bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500" multiple required> [Source 55]
+                <option value="Operator">Operator [Source 3]</option>
+                <option value="admin">Admin [Source 3]</option>
+              </select>
+              <span class="text-xxs text-gray-400 block mt-0.5">*Tahan Ctrl/Cmd untuk memilih >1 role [Source 4]</span>
+            </div>
+
+            <input type="text" id="add-jabatan" placeholder="Jabatan (e.g. APK APBN)" class="p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500" required>
+            
+            <div class="md:col-span-4 flex justify-end">
+              <button type="submit" class="bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold px-4 py-2 rounded-lg shadow shadow-sm"><i class="fa-solid fa-user-plus mr-1"></i> Simpan User</button>
+            </div>
+          </form>
+        </div>
+
+        <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+          <h3 class="font-bold text-gray-800 text-base mb-3 flex items-center">
+            <i class="fa-solid fa-users text-indigo-600 mr-2"></i> Daftar Seluruh Pengguna Sistem [Source 54]
+          </h3>
+          <div class="overflow-x-auto rounded-lg border border-gray-200">
+            <table class="min-w-full text-xs text-left">
+              <thead class="bg-gray-100 font-bold text-gray-700">
+                <tr>
+                  <th class="p-3 border">Username</th> [Source 54]
+                  <th class="p-3 border">Password</th> [Source 54]
+                  <th class="p-3 border">Role</th> [Source 54]
+                  <th class="p-3 border">Jabatan</th> [Source 54]
+                </tr>
+              </thead>
+              <tbody id="tbody-users-list" class="divide-y divide-gray-200 text-gray-600">
+                </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+    </main>
+  </div>
+
+  </div> <!-- /#app-shell -->
+
+    <script>
+    // Teks Dokumen Formal Konvensional
+    const headerTexts = {
+      "dashboard": "Selamat Datang di Portal Manajemen Risiko Loka Food and Drug Monitoring Office.",
+      "penetapan-konteks": "",
+      "entry-resiko": "“Mengidentifikasi Seluruh kejadian, penyebab, dan konsekuensi dari peristiwa risiko yang dapat menghalangi pencapaian tujuan”",
+      "daftar-resiko": "",
+      "analisis-resiko": "“Menentukan tingkat konsekuensi (dampak) dan tingkat kemungkinan terjadinya berdasarkan kriteria mempertimbangkan pengendalian yang sudah ada”.",
+      "evaluasi-resiko": "“Pengambilan keputusan mengenai perlu tidaknya dilakukan upaya mitigasi risiko lebih lanjut serta penentuan prioritas mitigasinya”",
+      "penanganan-resiko": "“Opsi mitigasi risiko yang mungkin diterapkan, dilanjutkan dengan penyusunan Rencana Tindak Pengendalian (RTP), dan pelaksanaan RTP tersebut”;",
+      "pemantauan-reviu": "“Pemantauan dan Reviu dilakukan terhadap seluruh aspek dari proses manajemen risiko”;",
+      "admin-kriteria": "",
+      "admin-user": "Pengaturan Akun Hak Akses Operator dan Administrator Aplikasi."
+    };
+
+ // ===================================================================
+  // 0. AUTENTIKASI & SESSION
+  // ===================================================================
+  let SESSION = null; // { token, username, role, jabatan }
+
+  function submitLogin(e) {
+    e.preventDefault();
+    const username = document.getElementById('login-username').value.trim();
+    const password = document.getElementById('login-password').value;
+    const btn = document.getElementById('btn-login');
+    const errEl = document.getElementById('login-error');
+    errEl.classList.add('hidden');
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-1.5"></i> Memproses...';
+
+    google.script.run
+      .withSuccessHandler(function(res) {
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fa-solid fa-right-to-bracket mr-1.5"></i> Masuk';
+        if (res.success) {
+          onLoginSuccess(res);
+        } else {
+          errEl.innerText = res.message || 'Username atau password salah.';
+          errEl.classList.remove('hidden');
+        }
+      })
+      .withFailureHandler(function(err) {
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fa-solid fa-right-to-bracket mr-1.5"></i> Masuk';
+        errEl.innerText = 'Gagal terhubung ke server: ' + err.message;
+        errEl.classList.remove('hidden');
+      })
+      .loginUser(username, password);
+  }
+
+  function onLoginSuccess(res) {
+    SESSION = { token: res.token, username: res.username, role: res.role, jabatan: res.jabatan };
+    sessionStorage.setItem('manrisk_token', res.token);
+    document.getElementById('login-screen').classList.add('hidden');
+    document.getElementById('app-shell').classList.remove('hidden');
+    applySessionToUI();
+    switchMenu('dashboard');
+  }
+
+  function applySessionToUI() {
+    if (!SESSION) return;
+    const badge = document.getElementById('header-user-badge');
+    if (badge) badge.innerText = SESSION.username + ' (' + SESSION.role + ')';
+
+    const isAdminRole = String(SESSION.role || '').toLowerCase().indexOf('admin') !== -1;
+    const adminPanel = document.getElementById('sidebar-admin-panel');
+    if (adminPanel) adminPanel.classList.toggle('hidden', !isAdminRole);
+  }
+
+  function doLogout() {
+    if (SESSION && SESSION.token) {
+      google.script.run.logoutUser(SESSION.token);
+    }
+    sessionStorage.removeItem('manrisk_token');
+    SESSION = null;
+    document.getElementById('app-shell').classList.add('hidden');
+    document.getElementById('login-screen').classList.remove('hidden');
+    const formLogin = document.getElementById('form-login');
+    if (formLogin) formLogin.reset();
+  }
+
+  // Coba pulihkan sesi kalau tab di-refresh dan token masih tersimpan & belum kedaluwarsa
+  function cobaPulihkanSesi() {
+    const token = sessionStorage.getItem('manrisk_token');
+    if (!token) {
+      document.getElementById('login-screen').classList.remove('hidden');
+      return;
+    }
+    google.script.run
+      .withSuccessHandler(function(res) {
+        if (res.success) {
+          onLoginSuccess({ token: token, username: res.data.username, role: res.data.role, jabatan: res.data.jabatan });
+        } else {
+          sessionStorage.removeItem('manrisk_token');
+          document.getElementById('login-screen').classList.remove('hidden');
+        }
+      })
+      .withFailureHandler(function() {
+        document.getElementById('login-screen').classList.remove('hidden');
+      })
+      .getSessionInfo(token);
+  }
+
+ // 1. FUNGSI UTAMA NAVIGASI MENU (FIXED)
+  function switchMenu(menuId) {
+      // Sembunyikan semua kontainer halaman menu
+      document.querySelectorAll('.menu-content').forEach(el => el.classList.add('hidden'));
+      
+      // Tampilkan kontainer halaman target yang dipilih
+      const target = document.getElementById('view-' + menuId);
+      if (target) {
+        target.classList.remove('hidden');
+      }
+      
+      // PERBARUI JUDUL TOPBAR UTAMA
+      const mainTitle = document.getElementById('current-menu-title');
+      if (mainTitle) {
+        mainTitle.innerText = menuId.toUpperCase().replace('-', ' ');
+      }
+      
+      // PEMICU REFRESH DATA OTOMATIS SAAT MENU DIKLIK
+      if (menuId === 'penetapan-konteks') {
+        loadKonteksTableData(); // <-- Ini membuat data langsung ter-load otomatis tanpa klik refresh
+      }
+      if (menuId === 'analisis-resiko') {
+        if (typeof fetchAnalisisMenuData === 'function') fetchAnalisisMenuData();
+        if (typeof fetchResidualMenuData === 'function') fetchResidualMenuData();
+      }
+      if (menuId === 'evaluasi-resiko') {
+        if (typeof loadEvaluasiRisiko === 'function') loadEvaluasiRisiko();
+      }
+      if (menuId === 'penanganan-resiko') {
+        if (typeof loadRTPList === 'function') loadRTPList();
+        if (typeof loadDropdownKodeRisikoRTP === 'function') loadDropdownKodeRisikoRTP();
+      }
+      if (menuId === 'pemantauan-reviu') {
+        if (typeof loadDropdownRTPPemantauan === 'function') loadDropdownRTPPemantauan();
+      }
+      if (menuId === 'daftar-resiko') {
+        if (typeof loadDaftarRisiko === 'function') loadDaftarRisiko();
+      }
+      // Di dalam function switchMenu(menuId) Anda:
+    if (menuId === 'entry-resiko') {
+      loadDropdownSasaran();
+      if (typeof generateLiveKodeRisiko === 'function') generateLiveKodeRisiko();
+    }
+    }
+
+    // 2. FUNGSI MENUTUP FORM ANALISIS (MANDIRI & BEBAS ERROR VARIABEL)
+    function closeAnalisisForm() {
+      const formBox = document.getElementById('box-form-analisis');
+      const hintBox = document.getElementById('hint-form-analisis');
+      const formEl = document.getElementById('form-sub-inheren');
+      
+      if (formBox) formBox.classList.add('hidden');
+      if (hintBox) hintBox.classList.remove('hidden');
+      if (formEl) formEl.reset();
+    }
+
+    // 3. INISIALISASI DEFAULT SAAT APLIKASI PERTAMA KALI DIBUKA
+    // Tidak langsung ke dashboard — cek dulu apakah ada sesi login yang masih valid.
+    window.onload = function() {
+      cobaPulihkanSesi();
+    };
+
+    // --- LOGIKA MODUL ANALISIS RISIKO ---
+    function fetchAnalisisBelumDinilai() {
+      const container = document.getElementById('list-analisis-belum-dinilai');
+      if (!container) return;
+      container.innerHTML = '<p class="text-xs text-gray-400 p-4">Memuat daftar risiko...</p>';
+      
+      const formBox = document.getElementById('form-analisis-box');
+      if (formBox) formBox.classList.add('hidden');
+
+      google.script.run.withSuccessHandler(function(items) {
+        if(!items || items.length === 0) {
+          container.innerHTML = '<p class="text-xs text-emerald-600 font-semibold p-4">Semua risiko dari data identifikasi telah memiliki penilaian inheren.</p>';
+          return;
+        }
+        let html = '';
+        items.forEach(item => {
+          html += `
+            <div class="py-3 flex justify-between items-center text-xs">
+              <div>
+                <span class="bg-gray-100 text-gray-800 font-bold px-2 py-0.5 rounded border border-gray-200">${item.kode}</span>
+                <span class="text-gray-700 font-semibold ml-2">${item.kegiatan}</span>
+                <p class="text-gray-400 mt-1">Uraian Masalah: ${item.peristiwa}</p>
+              </div>
+              <button onclick="openFormPenilaianInh(${item.rowNum}, '${item.kode}', '${item.peristiwa.replace(/'/g, "\\'")}')" class="bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-bold px-3 py-1.5 rounded-lg border border-indigo-200 transition">
+                Berikan Nilai <i class="fa-solid fa-chevron-right ml-1"></i>
+              </button>
+            </div>
+          `;
+        });
+        container.innerHTML = html;
+      }).getRisikoBelumDinilai();
+    }
+
+    function openFormPenilaianInh(rowNum, kode, peristiwa) {
+      document.getElementById('inh-row-num').value = rowNum;
+      document.getElementById('txt-inh-kode').innerText = kode;
+      document.getElementById('txt-inh-peristiwa').innerText = peristiwa;
+      document.getElementById('form-analisis-box').classList.remove('hidden');
+      calculateLiveRiskScore();
+    }
+
+    function calculateLiveRiskScore() {
+      const k = parseInt(document.getElementById('inh-kemungkinan').value);
+      const d = parseInt(document.getElementById('inh-dampak').value);
+      
+      google.script.run.withSuccessHandler(function(res) {
+        const badge = document.getElementById('badge-inh-level');
+        if (!badge) return;
+        badge.innerText = `Skor: ${res.skor} (${res.tingkat})`;
+        badge.style.backgroundColor = res.warna;
+        badge.style.color = (res.tingkat === "Sedang") ? "#1f2937" : "#ffffff";
+      }).hitungLevelRisiko(k, d);
+    }
+
+    function saveInherenAssessment(e) {
+      e.preventDefault();
+      const rowNum = document.getElementById('inh-row-num').value;
+      const k = document.getElementById('inh-kemungkinan').value;
+      const d = document.getElementById('inh-dampak').value;
+
+      google.script.run.withSuccessHandler(function(res) {
+        alert(res.message);
+        fetchAnalisisBelumDinilai();
+      }).simpanAnalisisInheren(rowNum, k, d, SESSION ? SESSION.token : null);
+    }
+
+    // --- LOGIKA DEFAULT USERS TABLE (ADMIN) ---
+    function loadDefaultUsersTable() {
+      const tbody = document.getElementById('tbody-users-list');
+      if (!tbody) return;
+      tbody.innerHTML = '<tr><td colspan="4" class="p-3 text-center text-gray-400">Menghubungkan ke database users...</td></tr>';
+
+      google.script.run.withSuccessHandler(function(users) {
+        if (!users || users.length === 0) {
+          tbody.innerHTML = '<tr><td colspan="4" class="p-3 text-center text-gray-400">Tidak ada user terdaftar.</td></tr>';
+          return;
+        }
+        let html = '';
+        users.forEach(u => {
+          html += `
+            <tr class="hover:bg-gray-50 transition">
+              <td class="p-3 border font-semibold text-gray-800">${u.username}</td>
+              <td class="p-3 border font-mono text-gray-400">••••••••</td>
+              <td class="p-3 border"><span class="bg-blue-100 text-blue-800 px-2 py-0.5 rounded text-xxs font-bold">${u.role}</span></td>
+              <td class="p-3 border">${u.jabatan}</td>
+            </tr>
+          `;
+        });
+        tbody.innerHTML = html;
+      }).withFailureHandler(function(err) {
+        tbody.innerHTML = '<tr><td colspan="4" class="p-3 text-center text-red-500 font-semibold">' + err.message + '</td></tr>';
+      }).getAllUsers(SESSION ? SESSION.token : null);
+    }
+
+    function addUserSubmit(e) {
+      e.preventDefault();
+      const rolesSelect = document.getElementById('add-roles');
+      const selectedRoles = Array.from(rolesSelect.selectedOptions).map(opt => opt.value);
+
+      const userData = {
+        username: document.getElementById('add-username').value,
+        password: document.getElementById('add-password').value,
+        roles: selectedRoles,
+        jabatan: document.getElementById('add-jabatan').value
+      };
+
+      google.script.run.withSuccessHandler(function(res) {
+        alert(res.message);
+        document.getElementById('form-crud-user').reset();
+        loadDefaultUsersTable();
+      }).simpanUser(userData, SESSION ? SESSION.token : null);
+    }
+
+    // Fungsi untuk menyembunyikan/menampilkan sub-menu anak
+    function toggleSubMenu(id) {
+      const submenu = document.getElementById(id);
+      const arrow = document.getElementById('arrow-identifikasi');
+      
+      if (submenu.classList.contains('hidden')) {
+        submenu.classList.remove('hidden');
+        arrow.classList.add('rotate-180'); // Rotasi panah ke atas jika terbuka
+      } else {
+        submenu.classList.add('hidden');
+        arrow.classList.remove('rotate-180'); // Kembalikan panah ke bawah jika tertutup
+      }
+    }
+ // Fungsi memuat Sasaran dari database Sheet "Konteks"
+   // FUNGSI MEMUAT SASARAN DARI DATABASE SHEET "KONTEKS" KE DROPDOWN ENTRY RISIKO
+    // Fungsi memuat data Sasaran dari database Sheet "Konteks" ke Dropdown Entry Risiko
+     // Fungsi memuat data Sasaran dari database Sheet "Konteks" ke Dropdown Entry Risiko
+    function loadDropdownSasaran() {
+      const select = document.getElementById('entry-sasaran');
+      if (!select) return;
+      
+      select.innerHTML = '<option value="">-- Memuat data sasaran... --</option>';
+      
+      google.script.run
+        .withSuccessHandler(function(konteksData) {
+          console.log("Data Konteks yang diterima server:", konteksData); // Log untuk memantau data di Console F12
+          
+          if (!konteksData || konteksData.length === 0) {
+            select.innerHTML = '<option value="">-- Tidak ada sasaran di database Konteks --</option>';
+            return;
+          }
+          
+          let options = '<option value="">-- Pilih Sasaran Kinerja --</option>';
+          konteksData.forEach(function(item) {
+            if (item && item.konteks) {
+              options += `<option value="${item.konteks}">${item.konteks}</option>`;
+            }
+          });
+          select.innerHTML = options;
+        })
+        .withFailureHandler(function(err) {
+          select.innerHTML = '<option value="">-- Gagal memuat data sasaran --</option>';
+          console.error("Gagal load dropdown sasaran:", err.message);
+        })
+        .getKonteksList(); // Memanggil fungsi di Code.gs
+    }
+    // Fungsi membuat live pre-view kode resiko sebelum submit berdasarkan kategori dan unit kerja
+    // FUNGSI MEMBUAT LIVE PREVIEW KODE RISIKO (MANDIRI & AMAN)
+    function generateLiveKodeRisiko() {
+      const kategoriEl = document.getElementById('entry-kategori');
+      const unitEl = document.getElementById('entry-unit');
+      const kodeInputEl = document.getElementById('entry-kode');
+      
+      // Validasi apakah elemen-elemen form entry risiko ini ada di halaman
+      if (!kategoriEl || !unitEl || !kodeInputEl) return;
+      
+      const kategori = kategoriEl.value;
+      const unitKode = unitEl.value;
+      
+      if (!kategori || !unitKode) return;
+
+      google.script.run
+        .withSuccessHandler(function(kodeOtomatis) {
+          if(kodeInputEl) {
+            kodeInputEl.value = kodeOtomatis;
+          }
+        })
+        .withFailureHandler(function(err) {
+          console.error("Gagal generate kode risiko:", err.message);
+        })
+        .generateKodeRisiko(kategori, unitKode);
+    }
+
+    // FUNGSI SUBMIT FORM ENTRY RISIKO KE DATABASE (FIXED)
+    function submitFormIdentifikasi(e) {
+      e.preventDefault();
+      
+      const sasaranEl = document.getElementById('entry-sasaran');
+      const kegiatanEl = document.getElementById('entry-kegiatan');
+      const unitEl = document.getElementById('entry-unit');
+      const kategoriEl = document.getElementById('entry-kategori');
+      const kodeEl = document.getElementById('entry-kode');
+      const eventEl = document.getElementById('entry-event');
+      const penyebabEl = document.getElementById('entry-penyebab');
+      const sumberEl = document.getElementById('entry-sumber');
+      const akibatEl = document.getElementById('entry-akibat');
+      const pemilikEl = document.getElementById('entry-pemilik');
+      const unitKerjaEl = document.getElementById('entry-unitkerja');
+
+      const formData = {
+        sasaran: sasaranEl ? sasaranEl.value : "",
+        kegiatan: kegiatanEl ? kegiatanEl.value : "",
+        unitKode: unitEl ? unitEl.value : "",
+        kategori: kategoriEl ? kategoriEl.value : "",
+        kodeRisiko: kodeEl ? kodeEl.value : "",
+        riskEvent: eventEl ? eventEl.value : "",
+        penyebab: penyebabEl ? penyebabEl.value : "",
+        sumber: sumberEl ? sumberEl.value : "",
+        akibat: akibatEl ? akibatEl.value : "",
+        pemilik: pemilikEl ? pemilikEl.value : "",
+        unitKerja: unitKerjaEl ? unitKerjaEl.value : ""
+      };
+
+      google.script.run
+        .withSuccessHandler(function(res) {
+          if (res && res.success) {
+            alert(res.message);
+            const formObj = document.getElementById('form-identifikasi-risiko');
+            if(formObj) formObj.reset();
+            
+            // Pindah halaman secara aman dengan memanggil fungsi switchMenu menggunakan string eksplisit
+            if (typeof switchMenu === 'function') {
+              switchMenu('daftar-resiko'); 
+            }
+          } else {
+            alert("Gagal menyimpan data: " + (res ? res.message : "Error tidak diketahui"));
+          }
+        })
+        .withFailureHandler(function(err) {
+          alert("Gagal koneksi ke server: " + err.message);
+        })
+        .simpanIdentifikasi(formData, SESSION ? SESSION.token : null);
+    }
+    // Fungsi memuat & merender seluruh kolom database DaftarResiko [cite: 38, 39]
+    function loadDaftarRisiko() {
+      const tbody = document.getElementById('tbody-daftar-resiko');
+      if (!tbody) return;
+      tbody.innerHTML = '<tr><td colspan="23" class="p-4 text-center text-gray-400 font-semibold animate-pulse">Menghubungkan ke database DaftarResiko Loka POM...</td></tr>';
+
+      google.script.run.withSuccessHandler(function(dataMatrix) {
+        // Jika data kosong atau hanya berisi baris header saja
+        if (!dataMatrix || dataMatrix.length <= 1) {
+          tbody.innerHTML = '<tr><td colspan="23" class="p-4 text-center text-gray-400">Belum ada data risiko teridentifikasi di database.</td></tr>';
+          return;
+        }
+
+        let html = '';
+        // Loop dimulai dari indeks 1 (baris ke-2 spreadsheet untuk melewati header) 
+        for (let i = 1; i < dataMatrix.length; i++) {
+          let row = dataMatrix[i];
+          let rowNum = i + 1; // Menyimpan referensi posisi baris asli untuk fungsi update/delete 
+
+       // Potongan kode di dalam loop loadDaftarRisiko() pada Index.html
+// Menggunakan (row[X] || '-') memastikan jika data kosong/undefined akan diganti strip (-)
+html += `
+  <tr class="hover:bg-gray-50 transition border-b text-gray-700">
+    <td class="p-2 border text-center font-bold bg-gray-50">${i}</td>
+    <td class="p-2 border max-w-xs overflow-hidden truncate">${row[1] || '-'}</td>
+    <td class="p-2 border max-w-xs overflow-hidden truncate">${row[2] || '-'}</td>
+    <td class="p-2 border font-mono font-bold text-indigo-700">${row[3] || '-'}</td>
+    <td class="p-2 border text-xs">${row[4] || '-'}</td>
+    <td class="p-2 border max-w-sm whitespace-normal text-xxs leading-tight">${row[5] || '-'}</td>
+    <td class="p-2 border max-w-sm whitespace-normal text-xxs leading-tight">${row[6] || '-'}</td>
+    <td class="p-2 border text-center">${row[7] || '-'}</td>
+    <td class="p-2 border max-w-xs overflow-hidden truncate">${row[8] || '-'}</td>
+    <td class="p-2 border text-gray-500 text-xxs">${row[9] || '-'}</td>
+    <td class="p-2 border text-gray-500 text-xxs">${row[10] || '-'}</td>
+    <td class="p-2 border text-center font-bold bg-orange-50">${row[11] || '-'}</td>
+    <td class="p-2 border text-center font-bold bg-orange-50">${row[12] || '-'}</td>
+    <td class="p-2 border text-center font-bold text-orange-800 bg-orange-100">${row[13] || '-'}</td>
+    <td class="p-2 border">${row[14] || '-'}</td>
+    <td class="p-2 border">${row[15] || '-'}</td>
+    <td class="p-2 border">${row[16] || '-'}</td>
+    <td class="p-2 border">${row[17] || '-'}</td>
+    <td class="p-2 border text-center bg-red-50">${row[18] || '-'}</td>
+    <td class="p-2 border text-center bg-red-50">${row[19] || '-'}</td>
+    <td class="p-2 border text-center font-bold text-red-800 bg-red-100">${row[20] || '-'}</td>
+    <td class="p-2 border text-center space-x-1">
+      <button onclick="triggerEditRisiko(${rowNum})" class="bg-amber-500 text-white font-bold p-1 rounded text-xxs"><i class="fa-solid fa-pen-to-square"></i></button>
+      <button onclick="triggerHapusRisiko(${rowNum}, '${row[3]}')" class="bg-red-600 text-white font-bold p-1 rounded text-xxs"><i class="fa-solid fa-trash-can"></i></button>
+    </td>
+  </tr>
+`;
+        }
+        tbody.innerHTML = html;
+      }).getDaftarRisiko(); // Memanggil fungsi GS
+    }
+
+
+    // Fungsi untuk mengunduh tabel Daftar Risiko ke dalam format Excel
+    function downloadExcelDaftarRisiko() {
+      const table = document.getElementById("tabel-daftar-risiko-kobar");
+      if (!table) {
+        alert("Data tabel tidak ditemukan!");
+        return;
+      }
+
+      // Kloning tabel agar perubahan manipulasi (menghapus kolom aksi) tidak merusak tampilan aplikasi
+      const tableClone = table.cloneNode(true);
+      
+      // Hapus kolom terakhir (Kolom Aksi Edit/Hapus) di setiap baris header dan bodi agar tidak mengotori file Excel
+      const rows = tableClone.getElementsByTagName("tr");
+      for (let i = 0; i < rows.length; i++) {
+        if (rows[i].lastElementChild) {
+          rows[i].removeChild(rows[i].lastElementChild);
+        }
+      }
+
+      // Format Meta Data untuk Dokumen Excel HTML XML
+      const htmlContent = tableClone.outerHTML;
+      const blobTemplate = `
+        <html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40">
+        <head>
+          <meta charset="UTF-8">
+          <style>
+            table { border-collapse: collapse; font-family: Arial, sans-serif; }
+            th { background-color: #1e1b4b; color: #ffffff; font-weight: bold; text-align: center; border: 1px solid #334155; }
+            td { border: 1px solid #cbd5e1; padding: 4px; }
+            .bg-orange { background-color: #ffedd5; }
+            .bg-teal { background-color: #ccfbf1; }
+            .bg-red { background-color: #fee2e2; }
+          </style>
+        </head>
+        <body>
+          ${htmlContent}
+        </body>
+        </html>
+      `;
+
+      // Buat Blob data dan pemicu download otomatis di browser
+      const blob = new Blob([blobTemplate], { type: "application/vnd.ms-excel" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      
+      // Penamaan file dinamis menggunakan waktu unduh
+      const date = new Date().toISOString().slice(0,10);
+      a.href = url;
+      a.download = `Daftar_Risiko_MANRISK_Kobar_${date}.xls`;
+      
+      document.body.appendChild(a);
+      a.click();
+      
+      // Bersihkan elemen temporary setelah sukses mengunduh
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }
+
+    // Fungsi proteksi eksekusi hapus di sisi client 
+    function triggerHapusRisiko(rowNum, kodeRisiko) {
+      if (confirm(`Apakah Anda yakin selaku Administrator ingin menghapus data dengan Kode Risiko: ${kodeRisiko}? `)) {
+        google.script.run.withSuccessHandler(function(res) {
+          alert(res.message);
+          loadDaftarRisiko(); // Muat ulang tabel setelah berhasil dihapus
+        }).withFailureHandler(function(err) {
+          alert("Gagal menghapus: " + err.message);
+        }).hapusRisiko(rowNum, SESSION ? SESSION.token : null);
+      }
+    }
+
+    function triggerEditRisiko(rowNum) {
+      alert("Fungsi edit baris ke-" + rowNum + " memerlukan hak verifikasi Admin.");
+    }
+
+    // FUNGSI UTAMA UNTUK MEMUAT DATA DI MENU ANALISIS RISIKO
+    function fetchAnalisisMenuData() {
+      const boxBelum = document.getElementById('list-analisis-belum');
+      const boxSudah = document.getElementById('list-analisis-sudah');
+      
+      // Tutup form input kanan terlebih dahulu
+      closeAnalisisForm();
+
+      if (boxBelum) boxBelum.innerHTML = '<p class="text-xs text-gray-400 p-2 animate-pulse"><i class="fa-solid fa-spinner fa-spin mr-1"></i> Sinkronisasi data belum dinilai...</p>';
+      if (boxSudah) boxSudah.innerHTML = '<p class="text-xs text-gray-400 p-2 animate-pulse"><i class="fa-solid fa-spinner fa-spin mr-1"></i> Sinkronisasi data teranalisis...</p>';
+
+      // Memanggil fungsi aman yang ada di Code.gs
+      google.script.run.withSuccessHandler(function(res) {
+        if (!res) {
+          if(boxBelum) boxBelum.innerHTML = '<p class="text-xs text-red-500 p-2">Gagal memuat: Format database salah.</p>';
+          return;
+        }
+
+        // 1. RENDER DATA BELUM BERIKAN PENILAIAN INHEREN
+        if (!res.belumDinilai || res.belumDinilai.length === 0) {
+          boxBelum.innerHTML = '<p class="text-xs text-emerald-600 font-semibold p-2"><i class="fa-solid fa-circle-check mr-1"></i> Semua data risiko teridentifikasi sudah memiliki nilai analisis.</p>';
+        } else {
+          let htmlBelum = '';
+          res.belumDinilai.forEach(item => {
+            htmlBelum += `
+              <div class="py-2.5 flex justify-between items-center text-xs border-b border-gray-100 last:border-none">
+                <div class="pr-2 truncate">
+                  <span class="bg-red-50 text-red-700 font-mono font-bold px-1.5 py-0.5 rounded border border-red-200">${item.kode}</span>
+                  <span class="text-gray-800 font-semibold ml-1.5">${item.kegiatan}</span>
+                  <p class="text-gray-400 text-xxs truncate mt-0.5">${item.peristiwa}</p>
+                </div>
+                <button onclick="openFormAnalisisInh(${item.rowNum}, '${item.kode}', '${item.kegiatan.replace(/'/g, "\\'")}', '${item.peristiwa.replace(/'/g, "\\'")}', 1, 1)" class="bg-orange-600 hover:bg-orange-700 text-white font-bold px-2.5 py-1 rounded-md transition-all flex-shrink-0 shadow-sm">
+                  Beri Nilai <i class="fa-solid fa-chevron-right ml-1 text-xxs"></i>
+                </button>
+              </div>
+            `;
+          });
+          boxBelum.innerHTML = htmlBelum;
+        }
+
+        // 2. RENDER DATA EDIT / UPDATE EXISTING
+        if (!res.sudahDinilai || res.sudahDinilai.length === 0) {
+          boxSudah.innerHTML = '<p class="text-xs text-gray-400 p-2 italic">Belum ada data risiko yang memiliki penilaian sebelumnya.</p>';
+        } else {
+          let htmlSudah = '';
+          res.sudahDinilai.forEach(item => {
+            htmlSudah += `
+              <div class="py-2.5 flex justify-between items-center text-xs border-b border-gray-100 last:border-none">
+                <div class="pr-2 truncate">
+                  <span class="bg-gray-100 text-gray-700 font-mono font-bold px-1.5 py-0.5 rounded border border-gray-300">${item.kode}</span>
+                  <span class="text-gray-800 font-semibold ml-1.5">${item.kegiatan}</span>
+                  <span class="text-xxs ml-2 font-bold px-1.5 py-0.5 rounded bg-indigo-50 text-indigo-700 border border-indigo-100">${item.level}</span>
+                </div>
+                <button onclick="openFormAnalisisInh(${item.rowNum}, '${item.kode}', '${item.kegiatan.replace(/'/g, "\\'")}', '${item.peristiwa.replace(/'/g, "\\'")}', ${item.kemungkinan}, ${item.dampak})" class="bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 font-bold px-2.5 py-1 rounded-md transition-all flex-shrink-0">
+                  <i class="fa-solid fa-user-pen mr-1"></i> Edit/Update
+                </button>
+              </div>
+            `;
+          });
+          boxSudah.innerHTML = htmlSudah;
+        }
+      }).withFailureHandler(function(err) {
+        if(boxBelum) boxBelum.innerHTML = '<p class="text-xs text-red-500 p-2">Gagal tersambung ke server script: ' + err.message + '</p>';
+        if(boxSudah) boxSudah.innerHTML = '<p class="text-xs text-red-500 p-2">Gagal memuat database.</p>';
+      }).getDataUntukAnalisis();
+    }
+
+    // FUNGSI MENUTUP FORM (MANDIRI - TANPA MENUNTUT PARAMETER MENUID)
+    function closeAnalisisForm() {
+      const formBox = document.getElementById('box-form-analisis');
+      const hintBox = document.getElementById('hint-form-analisis');
+      const formEl = document.getElementById('form-sub-inheren');
+      
+      if (formBox) formBox.classList.add('hidden');
+      if (hintBox) hintBox.classList.remove('hidden');
+      if (formEl) formEl.reset();
+    }
+
+    function openFormAnalisisInh(rowNum, kode, kegiatan, peristiwa, kem, dam) {
+      document.getElementById('analisis-row-num').value = rowNum;
+      document.getElementById('lbl-analisis-kode').innerText = kode;
+      document.getElementById('lbl-analisis-kegiatan').innerText = kegiatan;
+      document.getElementById('lbl-analisis-peristiwa').innerText = peristiwa;
+      
+      document.getElementById('an-kemungkinan').value = kem;
+      document.getElementById('an-dampak').value = dam;
+      
+      document.getElementById('hint-form-analisis').classList.add('hidden');
+      document.getElementById('box-form-analisis').classList.remove('hidden');
+      liveCalculateMatrixScore();
+    }
+
+    function closeAnalisisForm() {
+      document.getElementById('box-form-analisis').classList.add('hidden');
+      document.getElementById('hint-form-analisis').classList.remove('hidden');
+      document.getElementById('form-sub-inheren').reset();
+    }
+
+    function liveCalculateMatrixScore() {
+      const k = document.getElementById('an-kemungkinan').value;
+      const d = document.getElementById('an-dampak').value;
+      
+      google.script.run.withSuccessHandler(function(res) {
+        const badge = document.getElementById('badge-an-level');
+        if(!badge) return;
+        badge.innerText = `Skor: ${res.skor} (${res.tingkat})`;
+        badge.style.backgroundColor = res.warna;
+        badge.style.color = (res.tingkat === "Sedang") ? "#1f2937" : "#ffffff";
+      }).hitungLevelRisiko(k, d);
+    }
+
+    function submitPenilaianAnalisis(e) {
+      e.preventDefault();
+      const rowNum = document.getElementById('analisis-row-num').value;
+      const k = document.getElementById('an-kemungkinan').value;
+      const d = document.getElementById('an-dampak').value;
+
+      google.script.run.withSuccessHandler(function(res) {
+        if(res.success) {
+          alert(res.message);
+          fetchAnalisisMenuData(); // Reload list data analisis
+        } else {
+          alert("Gagal memperbarui: " + res.message);
+        }
+      }).simpanAnalisisInheren(rowNum, k, d, SESSION ? SESSION.token : null);
+    }
+    
+    // FUNGSI UTAMA LOAD DATA TABEL KONTEKS (OPTIMIZED)
+    function loadKonteksTableData() {
+      const tbody = document.getElementById('tbody-konteks-data');
+      if (!tbody) return;
+      
+      // Efek loading animasi
+      tbody.innerHTML = '<tr><td colspan="4" class="p-4 text-center text-gray-400 animate-pulse"><i class="fa-solid fa-spinner fa-spin mr-2 text-indigo-600"></i> Memuat basis data konteks...</td></tr>';
+      
+      const isAdmin = !!(SESSION && String(SESSION.role || '').toLowerCase().indexOf('admin') !== -1);
+
+      const formBox = document.getElementById('box-wrapper-form-konteks');
+      const thAksi = document.getElementById('th-aksi-konteks');
+      
+      if (isAdmin) {
+        if (formBox) formBox.classList.remove('hidden');
+        if (thAksi) thAksi.classList.remove('hidden');
+      } else {
+        if (formBox) formBox.classList.add('hidden');
+        if (thAksi) thAksi.classList.add('hidden');
+      }
+
+      // Reset form ke kondisi siap tambah baru
+      if (typeof resetFormKonteksState === 'function') resetFormKonteksState();
+
+      // Ambil data ke backend spreadsheet
+      google.script.run
+        .withSuccessHandler(function(data) {
+          if (!data || data.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="${isAdmin ? 4 : 3}" class="p-4 text-center text-gray-400 italic">Database Konteks masih kosong.</td></tr>`;
+            return;
+          }
+
+          let html = '';
+          data.forEach(row => {
+            html += `
+              <tr class="hover:bg-gray-50 border-b border-gray-100 text-gray-600 text-xs">
+                <td class="p-3 border text-center font-bold bg-gray-50 w-12">${row.no}</td>
+                <td class="p-3 border font-semibold text-gray-800 whitespace-pre-line text-left">${row.konteks}</td>
+                <td class="p-3 border whitespace-pre-line text-left">${row.ket || '-'}</td>
+                ${isAdmin ? `
+                  <td class="p-3 border text-center w-24">
+                    <button onclick="triggerEditKonteks(${row.rowNum}, '${row.konteks.replace(/'/g, "\\'")}', '${row.ket.replace(/'/g, "\\'")}')" class="bg-amber-600 hover:bg-amber-700 text-white font-bold px-3 py-1 rounded shadow-sm transition-all text-xxs flex items-center justify-center mx-auto">
+                      <i class="fa-solid fa-pen-to-square mr-1"></i> Edit
+                    </button>
+                  </td>
+                ` : ''}
+              </tr>
+            `;
+          });
+          tbody.innerHTML = html;
+        })
+        .withFailureHandler(function(err) {
+          tbody.innerHTML = `<tr><td colspan="4" class="p-4 text-center text-red-500 font-semibold">Gagal memuat data: ${err.message}</td></tr>`;
+        })
+        .getKonteksDataAll();
+    }
+
+    // 0. FUNGSI SUBMIT FORM KONTEKS (TAMBAH BARU / EDIT, TERGANTUNG konteks-row-num)
+    function submitFormKonteks(e) {
+      e.preventDefault();
+      const rowNum = document.getElementById('konteks-row-num').value;
+      const btn = document.getElementById('btn-submit-konteks');
+
+      const formData = {
+        rowNum: rowNum,
+        konteks: document.getElementById('input-konteks-nama').value,
+        ket: document.getElementById('input-konteks-ket').value
+      };
+
+      const isEdit = !!rowNum;
+      const fnName = isEdit ? 'updateKonteksData' : 'simpanKonteksBaru';
+      if (btn) btn.disabled = true;
+
+      google.script.run
+        .withSuccessHandler(function(res) {
+          if (btn) btn.disabled = false;
+          if (res.success) {
+            alert(res.message);
+            resetFormKonteksState();
+            loadKonteksTableData();
+          } else {
+            alert("Gagal menyimpan: " + res.message);
+          }
+        })
+        .withFailureHandler(function(err) {
+          if (btn) btn.disabled = false;
+          alert("Gagal koneksi ke server: " + err.message);
+        })
+        [fnName](formData, SESSION ? SESSION.token : null);
+    }
+
+    // 1. FUNGSI UNTUK RESET FORM KONTEKS KE KONDISI DEFAULT (TAMBAH BARU)
+    function resetFormKonteksState() {
+      const rowNumEl = document.getElementById('konteks-row-num');
+      const formEl = document.getElementById('form-crud-konteks');
+      const titleEl = document.getElementById('title-form-konteks');
+      const btnSubmitEl = document.getElementById('btn-submit-konteks');
+      const btnBatalEl = document.getElementById('btn-batal-konteks');
+
+      // Reset hidden field tracker dan isi form text area
+      if (rowNumEl) rowNumEl.value = "";
+      if (formEl) formEl.reset();
+      
+      // Kembalikan teks judul dan warna tombol ke default (Tema Indigo untuk Tambah Baru)
+      if (titleEl) titleEl.innerHTML = '<i class="fa-solid fa-folder-plus mr-2 text-indigo-600"></i> Tambah Konteks Baru';
+      if (btnSubmitEl) btnSubmitEl.className = "w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 rounded-lg shadow-sm transition flex items-center justify-center";
+      if (btnBatalEl) btnBatalEl.classList.add('hidden');
+    }
+
+    // 2. FUNGSI UNTUK MENGUBAH FORM KE MODE EDIT (PANDUAN ADMIN)
+    function triggerEditKonteks(rowNum, konteks, ket) {
+      const rowNumEl = document.getElementById('konteks-row-num');
+      const namaEl = document.getElementById('input-konteks-nama');
+      const ketEl = document.getElementById('input-konteks-ket');
+      const titleEl = document.getElementById('title-form-konteks');
+      const btnSubmitEl = document.getElementById('btn-submit-konteks');
+      const btnBatalEl = document.getElementById('btn-batal-konteks');
+
+      if (rowNumEl) rowNumEl.value = rowNum;
+      if (namaEl) namaEl.value = konteks;
+      if (ketEl) ketEl.value = ket;
+      
+      // Ubah judul dan warna tombol ke warna Oranye (Tanda sedang Mode Edit)
+      if (titleEl) titleEl.innerHTML = '<i class="fa-solid fa-user-pen mr-2 text-amber-500"></i> Edit / Update Konteks';
+      if (btnSubmitEl) btnSubmitEl.className = "w-full bg-amber-500 hover:bg-amber-600 text-white font-bold py-2 rounded-lg shadow-sm transition flex items-center justify-center";
+      if (btnBatalEl) btnBatalEl.classList.remove('hidden');
+    }
+
+    // ===================================================================
+    // LANJUTAN ANALISIS RISIKO: PENGENDALIAN SAAT INI & RISIKO RESIDUAL
+    // ===================================================================
+    function fetchResidualMenuData() {
+      const boxBelum = document.getElementById('list-residual-belum');
+      const boxSudah = document.getElementById('list-residual-sudah');
+      if (!boxBelum || !boxSudah) return;
+      closeResidualForm();
+      boxBelum.innerHTML = '<p class="text-xs text-gray-400 p-2 animate-pulse">Memuat data...</p>';
+      boxSudah.innerHTML = '<p class="text-xs text-gray-400 p-2 animate-pulse">Memuat data...</p>';
+
+      google.script.run.withSuccessHandler(function(res) {
+        if (!res.belum || res.belum.length === 0) {
+          boxBelum.innerHTML = '<p class="text-xs text-emerald-600 font-semibold p-2"><i class="fa-solid fa-circle-check mr-1"></i> Semua risiko yang sudah dinilai Inheren telah memiliki data Pengendalian & Residual.</p>';
+        } else {
+          let html = '';
+          res.belum.forEach(item => {
+            html += `
+              <div class="py-2.5 flex justify-between items-center text-xs border-b border-gray-100 last:border-none">
+                <div class="pr-2 truncate">
+                  <span class="bg-red-50 text-red-700 font-mono font-bold px-1.5 py-0.5 rounded border border-red-200">${item.kode}</span>
+                  <span class="text-gray-800 font-semibold ml-1.5">${item.kegiatan}</span>
+                </div>
+                <button onclick='openFormResidual(${JSON.stringify(item)})' class="bg-teal-600 hover:bg-teal-700 text-white font-bold px-2.5 py-1 rounded-md flex-shrink-0 shadow-sm">Isi Data <i class="fa-solid fa-chevron-right ml-1 text-xxs"></i></button>
+              </div>`;
+          });
+          boxBelum.innerHTML = html;
+        }
+
+        if (!res.sudah || res.sudah.length === 0) {
+          boxSudah.innerHTML = '<p class="text-xs text-gray-400 p-2 italic">Belum ada data Pengendalian & Residual tersimpan.</p>';
+        } else {
+          let html2 = '';
+          res.sudah.forEach(item => {
+            html2 += `
+              <div class="py-2.5 flex justify-between items-center text-xs border-b border-gray-100 last:border-none">
+                <div class="pr-2 truncate">
+                  <span class="bg-gray-100 text-gray-700 font-mono font-bold px-1.5 py-0.5 rounded border border-gray-300">${item.kode}</span>
+                  <span class="text-gray-800 font-semibold ml-1.5">${item.kegiatan}</span>
+                  <span class="text-xxs ml-2 font-bold px-1.5 py-0.5 rounded bg-teal-50 text-teal-700 border border-teal-100">${item.levelResidual}</span>
+                </div>
+                <button onclick='openFormResidual(${JSON.stringify(item)})' class="bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 font-bold px-2.5 py-1 rounded-md flex-shrink-0"><i class="fa-solid fa-user-pen mr-1"></i> Edit</button>
+              </div>`;
+          });
+          boxSudah.innerHTML = html2;
+        }
+      }).withFailureHandler(function(err) {
+        boxBelum.innerHTML = '<p class="text-xs text-red-500 p-2">Gagal memuat: ' + err.message + '</p>';
+      }).getRisikoBelumResidual();
+    }
+
+    function openFormResidual(item) {
+      document.getElementById('hint-form-residual').classList.add('hidden');
+      document.getElementById('box-form-residual').classList.remove('hidden');
+      document.getElementById('residual-row-num').value = item.rowNum;
+      document.getElementById('lbl-residual-kode').innerText = item.kode;
+      document.getElementById('lbl-residual-kegiatan').innerText = item.kegiatan;
+      document.getElementById('res-aktivitas').value = item.aktivitas || '';
+      document.getElementById('res-atribut').value = item.atribut || '';
+      document.getElementById('res-kelemahan').value = item.penilaianKelemahan || '';
+      document.getElementById('res-efektivitas').value = item.simpulanEfektivitas || 'Efektif';
+      document.getElementById('res-kemungkinan').value = item.kemungkinanResidual || 1;
+      document.getElementById('res-dampak').value = item.dampakResidual || 1;
+      liveCalculateResidualScore();
+    }
+
+    function closeResidualForm() {
+      const formBox = document.getElementById('box-form-residual');
+      const hintBox = document.getElementById('hint-form-residual');
+      const formEl = document.getElementById('form-residual');
+      if (formBox) formBox.classList.add('hidden');
+      if (hintBox) hintBox.classList.remove('hidden');
+      if (formEl) formEl.reset();
+    }
+
+    function liveCalculateResidualScore() {
+      const k = document.getElementById('res-kemungkinan').value;
+      const d = document.getElementById('res-dampak').value;
+      google.script.run.withSuccessHandler(function(res) {
+        const badge = document.getElementById('badge-res-level');
+        if (!badge) return;
+        badge.innerText = `Skor: ${res.skor} (${res.tingkat})`;
+        badge.style.backgroundColor = res.warna;
+        badge.style.color = (res.tingkat === "Sedang") ? "#1f2937" : "#ffffff";
+      }).hitungLevelRisiko(k, d);
+    }
+
+    function submitPengendalianResidual(e) {
+      e.preventDefault();
+      const rowNum = document.getElementById('residual-row-num').value;
+      const dataPengendalian = {
+        aktivitas: document.getElementById('res-aktivitas').value,
+        atribut: document.getElementById('res-atribut').value,
+        penilaianKelemahan: document.getElementById('res-kelemahan').value,
+        simpulanEfektivitas: document.getElementById('res-efektivitas').value,
+        kemungkinanResidual: document.getElementById('res-kemungkinan').value,
+        dampakResidual: document.getElementById('res-dampak').value
+      };
+      google.script.run.withSuccessHandler(function(res) {
+        alert(res.message);
+        if (res.success) fetchResidualMenuData();
+      }).withFailureHandler(function(err) {
+        alert("Gagal menyimpan: " + err.message);
+      }).simpanPengendalianResidual(rowNum, dataPengendalian, SESSION ? SESSION.token : null);
+    }
+
+    // ===================================================================
+    // EVALUASI RISIKO
+    // ===================================================================
+    function loadEvaluasiRisiko() {
+      const tbody = document.getElementById('tbody-evaluasi-risiko');
+      if (!tbody) return;
+      tbody.innerHTML = '<tr><td colspan="6" class="p-4 text-center text-gray-400 italic animate-pulse">Memuat data evaluasi...</td></tr>';
+
+      google.script.run.withSuccessHandler(function(list) {
+        if (!list || list.length === 0) {
+          tbody.innerHTML = '<tr><td colspan="6" class="p-4 text-center text-gray-400 italic">Belum ada risiko yang siap dievaluasi. Lengkapi Analisis Risiko terlebih dahulu.</td></tr>';
+          return;
+        }
+        let html = '';
+        list.forEach((item, idx) => {
+          html += `
+            <tr class="hover:bg-gray-50 border-b text-gray-700">
+              <td class="p-2 border text-center font-bold">${idx + 1}</td>
+              <td class="p-2 border font-mono font-bold text-indigo-700 text-center">${item.kode}</td>
+              <td class="p-2 border">${item.kegiatan}</td>
+              <td class="p-2 border text-center font-bold">${item.levelDipakai}</td>
+              <td class="p-2 border text-center"><span class="text-xxs font-bold px-1.5 py-0.5 rounded ${item.sumberLevel === 'Residual' ? 'bg-teal-50 text-teal-700' : 'bg-orange-50 text-orange-700'}">${item.sumberLevel}</span></td>
+              <td class="p-2 border">
+                <select onchange="simpanKeputusan(${item.rowNum}, this.value)" class="w-full p-1.5 border rounded text-xs bg-white">
+                  <option value="" ${!item.keputusan ? 'selected' : ''}>-- Belum Diputuskan --</option>
+                  <option value="Perlu Mitigasi" ${item.keputusan === 'Perlu Mitigasi' ? 'selected' : ''}>Perlu Mitigasi</option>
+                  <option value="Risiko Diterima" ${item.keputusan === 'Risiko Diterima' ? 'selected' : ''}>Risiko Diterima</option>
+                </select>
+              </td>
+            </tr>`;
+        });
+        tbody.innerHTML = html;
+      }).withFailureHandler(function(err) {
+        tbody.innerHTML = '<tr><td colspan="6" class="p-4 text-center text-red-500">' + err.message + '</td></tr>';
+      }).getDataUntukEvaluasi();
+    }
+
+    function simpanKeputusan(rowNum, keputusan) {
+      google.script.run.withSuccessHandler(function(res) {
+        if (!res.success) alert("Gagal menyimpan keputusan: " + res.message);
+      }).simpanKeputusanEvaluasi(rowNum, keputusan, SESSION ? SESSION.token : null);
+    }
+
+    // ===================================================================
+    // PENANGANAN RISIKO (RTP)
+    // ===================================================================
+    function loadDropdownKodeRisikoRTP() {
+      const select = document.getElementById('rtp-kode-risiko');
+      if (!select) return;
+      google.script.run.withSuccessHandler(function(dataMatrix) {
+        let options = '<option value="">-- Pilih Kode Risiko --</option>';
+        if (dataMatrix && dataMatrix.length > 2) {
+          for (let i = 2; i < dataMatrix.length; i++) {
+            const kode = dataMatrix[i][3];
+            const kegiatan = dataMatrix[i][2];
+            if (kode) options += `<option value="${kode}">${kode} — ${kegiatan}</option>`;
+          }
+        }
+        select.innerHTML = options;
+      }).getDaftarRisiko();
+    }
+
+    function loadRTPList() {
+      const tbody = document.getElementById('tbody-rtp-list');
+      if (!tbody) return;
+      tbody.innerHTML = '<tr><td colspan="6" class="p-4 text-center text-gray-400 italic animate-pulse">Memuat data RTP...</td></tr>';
+
+      google.script.run.withSuccessHandler(function(list) {
+        if (!list || list.length === 0) {
+          tbody.innerHTML = '<tr><td colspan="6" class="p-4 text-center text-gray-400 italic">Belum ada Rencana Tindak Pengendalian.</td></tr>';
+          return;
+        }
+        const warnaStatus = { "Belum Mulai": "bg-gray-100 text-gray-600", "Proses": "bg-amber-100 text-amber-700", "Terkendala": "bg-red-100 text-red-700", "Selesai": "bg-emerald-100 text-emerald-700" };
+        let html = '';
+        list.forEach(item => {
+          html += `
+            <tr class="hover:bg-gray-50 border-b text-gray-700">
+              <td class="p-2 border font-mono font-bold text-indigo-700 text-center">${item.kodeRisiko}</td>
+              <td class="p-2 border max-w-xs whitespace-normal">${item.rencanaTindak}</td>
+              <td class="p-2 border text-center">${item.pic}</td>
+              <td class="p-2 border text-center">${item.targetWaktu}</td>
+              <td class="p-2 border text-center"><span class="text-xxs font-bold px-1.5 py-0.5 rounded ${warnaStatus[item.status] || 'bg-gray-100'}">${item.status}</span></td>
+              <td class="p-2 border text-center">
+                <button onclick="hapusRTPClick(${item.rowNum}, '${item.kodeRisiko}')" class="text-red-500 hover:text-red-700" title="Hapus (Admin)"><i class="fa-solid fa-trash"></i></button>
+              </td>
+            </tr>`;
+        });
+        tbody.innerHTML = html;
+      }).withFailureHandler(function(err) {
+        tbody.innerHTML = '<tr><td colspan="6" class="p-4 text-center text-red-500">' + err.message + '</td></tr>';
+      }).getRTPList();
+    }
+
+    function submitFormRTP(e) {
+      e.preventDefault();
+      const formData = {
+        kodeRisiko: document.getElementById('rtp-kode-risiko').value,
+        opsiMitigasi: document.getElementById('rtp-opsi').value,
+        rencanaTindak: document.getElementById('rtp-rencana').value,
+        pic: document.getElementById('rtp-pic').value,
+        targetWaktu: document.getElementById('rtp-target').value,
+        anggaran: document.getElementById('rtp-anggaran').value
+      };
+      google.script.run.withSuccessHandler(function(res) {
+        alert(res.message);
+        if (res.success) {
+          document.getElementById('form-rtp').reset();
+          loadRTPList();
+        }
+      }).withFailureHandler(function(err) {
+        alert("Gagal menyimpan RTP: " + err.message);
+      }).simpanRTP(formData, SESSION ? SESSION.token : null);
+    }
+
+    function hapusRTPClick(rowNum, kodeRisiko) {
+      const isAdminRole = !!(SESSION && String(SESSION.role || '').toLowerCase().indexOf('admin') !== -1);
+      if (!isAdminRole) { alert("Hanya Admin yang dapat menghapus RTP."); return; }
+      if (!confirm(`Hapus RTP untuk risiko ${kodeRisiko}?`)) return;
+      google.script.run.withSuccessHandler(function(res) {
+        alert(res.message);
+        if (res.success) loadRTPList();
+      }).withFailureHandler(function(err) {
+        alert("Gagal menghapus: " + err.message);
+      }).hapusRTP(rowNum, SESSION ? SESSION.token : null);
+    }
+
+    // ===================================================================
+    // PEMANTAUAN & REVIU
+    // ===================================================================
+    function loadDropdownRTPPemantauan() {
+      const select = document.getElementById('pemantauan-pilih-rtp');
+      if (!select) return;
+      google.script.run.withSuccessHandler(function(list) {
+        let options = '<option value="">-- Pilih RTP untuk dipantau --</option>';
+        (list || []).forEach(item => {
+          options += `<option value="${item.rowNum}" data-kode="${item.kodeRisiko}">${item.kodeRisiko} — ${item.rencanaTindak.substring(0, 40)}...</option>`;
+        });
+        select.innerHTML = options;
+      }).getRTPList();
+    }
+
+    function loadRiwayatPemantauan() {
+      const select = document.getElementById('pemantauan-pilih-rtp');
+      const rtpRowNum = select.value;
+      const box = document.getElementById('box-pemantauan-detail');
+      const list = document.getElementById('list-riwayat-pemantauan');
+      if (!rtpRowNum) { box.classList.add('hidden'); return; }
+      box.classList.remove('hidden');
+      list.innerHTML = '<p class="text-xs text-gray-400 animate-pulse">Memuat riwayat...</p>';
+
+      google.script.run.withSuccessHandler(function(riwayat) {
+        if (!riwayat || riwayat.length === 0) {
+          list.innerHTML = '<p class="text-xs text-gray-400 italic">Belum ada catatan pemantauan untuk RTP ini.</p>';
+          return;
+        }
+        let html = '';
+        riwayat.forEach(r => {
+          html += `
+            <div class="p-3 bg-gray-50 rounded-lg border border-gray-100 text-xs">
+              <div class="flex justify-between items-center mb-1">
+                <span class="font-bold text-gray-700">${r.tanggalReviu}</span>
+                <span class="text-xxs font-bold px-1.5 py-0.5 rounded bg-indigo-50 text-indigo-700">${r.statusBaru}</span>
+              </div>
+              <p class="text-gray-600 mb-1"><strong>Progres:</strong> ${r.progres || '-'}</p>
+              ${r.kendala ? `<p class="text-red-600 mb-1"><strong>Kendala:</strong> ${r.kendala}</p>` : ''}
+              ${r.catatan ? `<p class="text-gray-500 italic">${r.catatan}</p>` : ''}
+              <p class="text-xxs text-gray-400 mt-1">oleh ${r.penginput}</p>
+            </div>`;
+        });
+        list.innerHTML = html;
+      }).withFailureHandler(function(err) {
+        list.innerHTML = '<p class="text-xs text-red-500">' + err.message + '</p>';
+      }).getPemantauanByRTP(rtpRowNum);
+    }
+
+    function submitFormPemantauan(e) {
+      e.preventDefault();
+      const select = document.getElementById('pemantauan-pilih-rtp');
+      const rtpRowNum = select.value;
+      if (!rtpRowNum) { alert("Pilih RTP terlebih dahulu."); return; }
+      const kodeRisiko = select.options[select.selectedIndex].dataset.kode;
+
+      const formData = {
+        rtpRowNum: rtpRowNum,
+        kodeRisiko: kodeRisiko,
+        tanggalReviu: document.getElementById('pem-tanggal').value,
+        progres: document.getElementById('pem-progres').value,
+        kendala: document.getElementById('pem-kendala').value,
+        statusBaru: document.getElementById('pem-status').value,
+        catatan: document.getElementById('pem-catatan').value
+      };
+      google.script.run.withSuccessHandler(function(res) {
+        alert(res.message);
+        if (res.success) {
+          document.getElementById('form-pemantauan').reset();
+          loadRiwayatPemantauan();
+        }
+      }).withFailureHandler(function(err) {
+        alert("Gagal menyimpan: " + err.message);
+      }).simpanPemantauan(formData, SESSION ? SESSION.token : null);
+    }
+  </script>
+</body>
+</html>
